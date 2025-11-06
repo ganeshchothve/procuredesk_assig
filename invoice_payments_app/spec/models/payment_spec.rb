@@ -18,13 +18,13 @@ RSpec.describe Payment, type: :model do
     end
   end
 
-  describe 'METHODS constant' do
+  describe 'PAYMENT_METHODS constant' do
     it 'defines all payment methods' do
-      expect(Payment::METHODS).to eq({ cash: 1, check: 2, charge: 3 })
+      expect(Payment::PAYMENT_METHODS).to eq({ cash: 1, check: 2, charge: 3 })
     end
 
     it 'is frozen' do
-      expect(Payment::METHODS).to be_frozen
+      expect(Payment::PAYMENT_METHODS).to be_frozen
     end
   end
 

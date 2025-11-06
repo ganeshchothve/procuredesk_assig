@@ -111,7 +111,7 @@ puts invoice.fully_paid?      # => true
 **Payment Model** - 15+ test cases covering:
 - Associations (belongs_to :invoice)
 - Validations (amount presence, amount > 0, valid payment_method_id)
-- METHODS constant (properly defined and frozen)
+- PAYMENT_METHODS constant (properly defined and frozen)
 - `#payment_method` (returns correct symbols: :cash, :check, :charge)
 - Raw payment method handling (accepts valid, rejects invalid)
 - Cascading deletes and edge cases
@@ -122,7 +122,7 @@ puts invoice.fully_paid?      # => true
 1. ✅ **Inverted `fully_paid?` logic** - Was `amount_owed.zero?`, now `amount_owed <= 0` (handles overpayment)
 2. ✅ **Wrong column name** - `amount_paid` → `amount`
 3. ✅ **Wrong association** - `has_one` → `belongs_to` in Payment
-4. ✅ **Non-existent method** - `METHODS.value()` → `METHODS[key]`
+4. ✅ **Non-existent method** - `PAYMENT_METHODS.value()` → `PAYMENT_METHODS[key]`
 5. ✅ **Missing inheritance** - Added `< ApplicationRecord`
 6. ✅ **Broken callback** - Fixed `convert_invoice_total_to_cents`
 

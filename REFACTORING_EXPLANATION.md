@@ -75,7 +75,7 @@ end
 **Original Code:**
 ```ruby
 def set_payment_method_id
-  self.payment_method_id = METHODS.value(raw_payment_method)
+  self.payment_method_id = PAYMENT_METHODS.value(raw_payment_method)
 end
 ```
 
@@ -84,7 +84,7 @@ end
 **Fixed To:**
 ```ruby
 def set_payment_method_id
-  self.payment_method_id = METHODS[raw_payment_method.to_sym] if raw_payment_method
+  self.payment_method_id = PAYMENT_METHODS[raw_payment_method.to_sym] if raw_payment_method
 end
 ```
 
@@ -179,7 +179,7 @@ validates :invoice_total, presence: true, numericality: { greater_than: 0 }
 
 **Added to Payment:**
 ```ruby
-validates :payment_method_id, inclusion: { in: METHODS.values, message: "must be valid" }
+validates :payment_method_id, inclusion: { in: PAYMENT_METHODS.values, message: "must be valid" }
 validates :amount, presence: true, numericality: { greater_than: 0 }
 validate :payment_method_must_be_valid
 ```
@@ -218,15 +218,15 @@ end
 
 ---
 
-### 11. Froze the METHODS Constant
+### 11. Froze the PAYMENT_METHODS Constant
 **Original Code:**
 ```ruby
-METHODS = { cash: 1, check: 2, charge: 3 }
+PAYMENT_METHODS = { cash: 1, check: 2, charge: 3 }
 ```
 
 **Fixed To:**
 ```ruby
-METHODS = { cash: 1, check: 2, charge: 3 }.freeze
+PAYMENT_METHODS = { cash: 1, check: 2, charge: 3 }.freeze
 ```
 
 **Rationale:** Freezing the hash prevents accidental modification at runtime. Constants in Ruby can still be mutated unless explicitly frozen. This is a best practice for immutable reference data.
@@ -237,7 +237,7 @@ METHODS = { cash: 1, check: 2, charge: 3 }.freeze
 **Original Code:**
 ```ruby
 def payment_method
-  METHODS[payment_method_id]
+  PAYMENT_METHODS[payment_method_id]
 end
 ```
 
@@ -246,7 +246,7 @@ end
 **Fixed To:**
 ```ruby
 def payment_method
-  METHODS.key(payment_method_id)
+  PAYMENT_METHODS.key(payment_method_id)
 end
 ```
 
@@ -286,12 +286,12 @@ before_validation :convert_invoice_total_to_cents, if: :invoice_total_changed?
 **Added:**
 ```ruby
 def set_payment_method_id
-  self.payment_method_id = METHODS[raw_payment_method.to_sym] if raw_payment_method
+  self.payment_method_id = PAYMENT_METHODS[raw_payment_method.to_sym] if raw_payment_method
 end
 
 def payment_method_must_be_valid
   return unless raw_payment_method
-  errors.add(:raw_payment_method, "must be cash, check, or charge") unless METHODS.key?(raw_payment_method.to_sym)
+  errors.add(:raw_payment_method, "must be cash, check, or charge") unless PAYMENT_METHODS.key?(raw_payment_method.to_sym)
 end
 ```
 
