@@ -64,11 +64,26 @@ RSpec.describe Invoice, type: :model do
 
     context 'when overpaid' do
       before do
-        invoice.record_payment(250.00, :cash)
+        invoice.record_payment(200.00, :cash)
       end
 
       it 'returns true' do
         expect(invoice.fully_paid?).to be true
+      end
+    end
+
+    context 'when attempting to overpay' do
+      it 'prevents overpayment' do
+        result = invoice.record_payment(250.00, :cash)
+        expect(result).to be false
+        puts invoice.errors.full_messages
+        expect(invoice.errors[:base]).to include("Payment amount ($250.0) exceeds amount owed ($200.0)")
+      end
+
+      it 'does not create a payment record' do
+        expect {
+          invoice.record_payment(250.00, :cash)
+        }.not_to change { invoice.payments.count }
       end
     end
   end

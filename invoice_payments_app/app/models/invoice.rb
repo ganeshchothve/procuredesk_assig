@@ -16,9 +16,29 @@ class Invoice < ApplicationRecord
 
   def record_payment(amount_paid, payment_method)
     return false unless amount_paid.positive?
-    
-    payment = payments.create(amount: to_cents(amount_paid), raw_payment_method: payment_method)
-    payment.persisted? ? payment : (errors.add(:base, payment.errors.full_messages.join(', ')) && false)
+
+    result = transaction do
+      # Pessimistic lock to prevent concurrent payment race conditions
+      lock!
+
+      # Recalculate amount owed with locked record
+      current_amount_owed = to_dollars(invoice_total - payments.sum(:amount))
+      amount_in_cents = to_cents(amount_paid)
+
+      # Prevent overpayment
+      if amount_in_cents > (invoice_total - payments.sum(:amount))
+        errors.add(:base, "Payment amount ($#{amount_paid}) exceeds amount owed ($#{current_amount_owed})")
+        raise ActiveRecord::Rollback
+      end
+
+      payment = payments.create!(amount: amount_in_cents, raw_payment_method: payment_method)
+      payment
+    end
+
+    result || false
+  rescue ActiveRecord::RecordInvalid => e
+    errors.add(:base, e.record.errors.full_messages.join(", "))
+    false
   end
 
   private
